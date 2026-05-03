@@ -154,14 +154,20 @@ async function reqNotif() {
   }
 }
 
-// ── 描画: 今日のセクション ────────────────
+// ── 描画: 選択日の予定セクション ────────────────
+// 選択日 (S.selectedDate) のイベントを表示。今日なら「今日の予定」、別日なら「○月○日の予定」
 function renderToday() {
-  const list = eventsOn(today());
+  const isToday = S.selectedDate === today();
+  const list = eventsOn(S.selectedDate);
+  const label = isToday ? '今日の予定' : `${fDate(S.selectedDate).split('（')[0]}の予定`;
+  const emptyMsg = isToday
+    ? '今日の予定はありません<br>下の「+ 予定を追加」から登録'
+    : 'この日の予定はありません<br>カレンダーから日を選び直すか「+ 予定を追加」から登録';
   const body = list.length === 0
-    ? `<div class="empty">今日の予定はありません<br>下の「+ 予定を追加」から登録</div>`
+    ? `<div class="empty">${emptyMsg}</div>`
     : `<div class="event-list">${list.map(renderEventCard).join('')}</div>`;
   return `<div class="section-title-row">
-    <h3 class="section-title">📅 今日の予定 <span class="section-sub">${list.length}件</span></h3>
+    <h3 class="section-title">📅 ${label} <span class="section-sub">${list.length}件</span></h3>
   </div>
   ${body}`;
 }

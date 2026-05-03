@@ -233,8 +233,12 @@ html, body {
 .month-cell.is-today { background: rgba(255,59,48,0.08); }
 .month-cell.is-today .month-cell-num { color: var(--red); font-weight: 800; }
 .month-cell.is-selected { background: var(--text); }
-.month-cell.is-selected .month-cell-num,
-.month-cell.is-selected .month-cell-event { color: var(--card) !important; }
+.month-cell.is-selected .month-cell-num { color: var(--card) !important; }
+.month-cell.is-selected .month-cell-event {
+  background: rgba(255,255,255,0.22) !important;
+  color: var(--card) !important;
+}
+.month-cell.is-selected .month-cell-more { color: rgba(255,255,255,0.7) !important; }
 .month-cell-event {
   font-size: 8px;
   line-height: 1.1;
