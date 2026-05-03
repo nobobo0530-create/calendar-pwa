@@ -12,14 +12,6 @@ const CATS = {
 };
 const CAT_KEYS = ['work','life','nba','other'];
 
-// 🏀 NBA 試合プリセット (チーム名はフル表記)
-const NBA_PRESET = [
-  {title:'サンダー vs レイカーズ', date:'2026-05-06', startTime:'09:30', cat:'nba', alarmBefore:15},
-  {title:'サンダー vs レイカーズ', date:'2026-05-08', startTime:'10:30', cat:'nba', alarmBefore:15},
-  {title:'レイカーズ vs サンダー', date:'2026-05-10', startTime:'09:30', cat:'nba', alarmBefore:15},
-  {title:'レイカーズ vs サンダー', date:'2026-05-12', startTime:'11:30', cat:'nba', alarmBefore:15},
-];
-
 const S = {
   date: today(),
   selectedDate: today(),
@@ -400,9 +392,6 @@ function render() {
     <div class="bottom-bar">
       <button class="bar-btn" id="btn-add">＋ 予定を追加</button>
     </div>
-    <div class="bottom-bar" style="margin-top:0">
-      <button class="bar-btn" id="btn-nba-preset" style="background:#AF52DE;">🏀 NBA試合をまとめて追加</button>
-    </div>
     ${S.formData ? renderForm() : ''}
     ${renderAlarmModal()}
   `;
@@ -445,30 +434,6 @@ function bind() {
   // 通常画面
   on('btn-add', () => {
     S.formData = { date: S.selectedDate, startTime: nextRoundTime(), cat: 'work' };
-    render();
-  });
-  on('btn-nba-preset', () => {
-    // 重複検出 (date + startTime + title が同じものはスキップ)
-    const existing = new Set(S.events.map(e => `${e.date}|${e.startTime}|${e.title}`));
-    const toAdd = NBA_PRESET.filter(p => !existing.has(`${p.date}|${p.startTime}|${p.title}`));
-    if (toAdd.length === 0) {
-      alert('🏀 NBA試合はすべて追加済みです');
-      return;
-    }
-    const summary = toAdd.map(d => `・${d.date} ${d.startTime} ${d.title}`).join('\n');
-    if (!confirm(`🏀 ${toAdd.length}試合を追加しますか?\n\n${summary}`)) return;
-    toAdd.forEach(d => S.events.push(mkEvent(d)));
-    saveEvents();
-    scheduleAlarms();
-    // 最初の試合の月へ移動
-    if (toAdd[0]?.date) {
-      S.selectedDate = toAdd[0].date;
-      // 月オフセット計算
-      const t = new Date(today()+'T00:00:00');
-      const d = new Date(toAdd[0].date+'T00:00:00');
-      S.monthShift = (d.getFullYear()-t.getFullYear())*12 + (d.getMonth()-t.getMonth());
-    }
-    alert(`✅ ${toAdd.length}試合を追加しました`);
     render();
   });
   on('goto-today', () => { S.selectedDate = today(); S.monthShift = 0; render(); });
