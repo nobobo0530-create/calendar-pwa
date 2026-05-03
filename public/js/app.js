@@ -483,9 +483,38 @@ function saveForm() {
   render();
 }
 
+// ── URL パラメータからイベントをインポート ──
+// 使い方: ?import=<base64(JSON配列)> でアクセスすると確認後に追加
+function tryImportFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    const imp = url.searchParams.get('import');
+    if (!imp) return;
+    // Unicode-safe base64 decode
+    const json = decodeURIComponent(escape(atob(imp)));
+    const list = JSON.parse(json);
+    if (!Array.isArray(list) || list.length === 0) return;
+    const summary = list.map(d => `・${d.date} ${d.startTime||''} ${d.title}`).join('\n');
+    if (confirm(`${list.length}件の予定を追加しますか?\n\n${summary}`)) {
+      list.forEach(d => S.events.push(mkEvent(d)));
+      saveEvents();
+      scheduleAlarms();
+      // 一番先頭の日付に自動移動
+      if (list[0]?.date) S.selectedDate = list[0].date;
+      alert(`✅ ${list.length}件の予定を追加しました`);
+    }
+    // URLパラメータを除去 (リロードで再実行されないため)
+    url.searchParams.delete('import');
+    history.replaceState(null, '', url.pathname + url.search);
+  } catch(e) {
+    console.warn('[import] error:', e);
+  }
+}
+
 // ── 起動 ───────────────────────────────
 async function init() {
   S.events = loadEvents();
+  tryImportFromUrl();   // ★ URL ?import=... があれば取り込む
   reqNotif();
   scheduleAlarms();
   // 1分ごとの保険チェック (バックグラウンド復帰対策)
