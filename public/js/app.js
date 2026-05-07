@@ -182,19 +182,19 @@ function renderEventCard(ev) {
 
 // ── 描画: 週間ストリップ ──────────────────
 function renderWeek() {
-  // 選択日(S.selectedDate)を含む週 (月曜起点)
+  // 選択日(S.selectedDate)を含む週 (日曜起点)
   const cur = new Date(S.selectedDate + 'T00:00:00');
-  const dow = (cur.getDay() + 6) % 7;
-  const monday = new Date(cur); monday.setDate(cur.getDate() - dow);
+  const dow = cur.getDay(); // 0=日, 1=月, ..., 6=土
+  const sunday = new Date(cur); sunday.setDate(cur.getDate() - dow);
   const todayStr = today();
 
   const eventDates = new Set(S.events.map(e => e.date));
 
   const days = Array.from({length:7}, (_, i) => {
-    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const d = new Date(sunday); d.setDate(sunday.getDate() + i);
     const ds = ymd(d);
     return {
-      ds, num: d.getDate(), dow: '月火水木金土日'[i],
+      ds, num: d.getDate(), dow: '日月火水木金土'[i],
       isToday: ds === todayStr,
       isSelected: ds === S.selectedDate,
       hasEvents: eventDates.has(ds),
@@ -226,7 +226,7 @@ function renderMonth() {
   const monthLabel = `${year}年${month+1}月`;
   const todayStr = today();
   const first = new Date(year, month, 1);
-  const startDow = (first.getDay() + 6) % 7;
+  const startDow = first.getDay(); // 0=日曜起点
   const lastDay = new Date(year, month+1, 0).getDate();
 
   // 日付 → 当日のイベント配列マップ
@@ -263,7 +263,7 @@ function renderMonth() {
   </div>
   <div class="month-grid-wrap">
     <div class="month-dow">
-      <div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div><div>日</div>
+      <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
     </div>
     <div class="month-grid">
       ${cells.map(c => {
