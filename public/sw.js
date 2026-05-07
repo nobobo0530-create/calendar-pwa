@@ -1,5 +1,5 @@
-// カレンダー Service Worker v1 - network-first + 通知クリック対応
-const CACHE = 'calendar-v1';
+// カレンダー Service Worker v2 - アイコン更新
+const CACHE = 'calendar-v2';
 const ASSETS = ['/','/index.html','/css/style.css','/js/app.js','/manifest.json',
   '/icons/icon-192.png','/icons/icon-512.png','/apple-touch-icon.png'];
 
