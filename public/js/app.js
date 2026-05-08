@@ -435,7 +435,7 @@ function bind() {
   // 通常画面
   on('btn-export', () => {
     const data = localStorage.getItem(EVENTS_KEY) || '[]';
-    const b64 = btoa(encodeURIComponent(data));
+    const b64 = btoa(unescape(encodeURIComponent(data)));
     const url = `https://calendar-pwa-omega.vercel.app/?import=${b64}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => alert('✅ コピーしました！\nSafariで新しいアプリを開いてアドレスバーに貼り付けてください。'));
