@@ -391,6 +391,7 @@ function render() {
     ${renderMonth()}
     <div class="bottom-bar">
       <button class="bar-btn" id="btn-add">＋ 予定を追加</button>
+      <button class="bar-btn" id="btn-export" style="background:#f3f4f6;color:#374151;font-size:13px;margin-top:8px;">📤 データを新しいアプリに移す</button>
     </div>
     ${S.formData ? renderForm() : ''}
     ${renderAlarmModal()}
@@ -432,6 +433,16 @@ function bind() {
   }
 
   // 通常画面
+  on('btn-export', () => {
+    const data = localStorage.getItem(EVENTS_KEY) || '[]';
+    const b64 = btoa(encodeURIComponent(data));
+    const url = `https://calendar-pwa-omega.vercel.app/?import=${b64}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => alert('✅ コピーしました！\nSafariで新しいアプリを開いてアドレスバーに貼り付けてください。'));
+    } else {
+      prompt('このURLをコピーして新しいアプリのSafariで開いてください', url);
+    }
+  });
   on('btn-add', () => {
     S.formData = { date: S.selectedDate, startTime: nextRoundTime(), cat: 'work' };
     render();
