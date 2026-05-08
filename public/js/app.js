@@ -442,7 +442,15 @@ function bind() {
     const text = prompt('エクスポートしたテキストを貼り付けてください');
     if (!text) return;
     try {
-      const list = JSON.parse(text);
+      let json = text.trim();
+      // URL形式（?import=xxx）の場合はbase64部分を取り出す
+      if (json.includes('?import=')) {
+        const b64 = json.split('?import=')[1].split('&')[0];
+        try { json = decodeURIComponent(escape(atob(b64))); } catch(_) {
+          try { json = decodeURIComponent(atob(b64)); } catch(__) {}
+        }
+      }
+      const list = JSON.parse(json);
       if (!Array.isArray(list)) { alert('データの形式が正しくありません'); return; }
       if (list.length === 0) { alert('データが空です'); return; }
       if (confirm(`${list.length}件の予定を追加しますか？`)) {
@@ -453,7 +461,7 @@ function bind() {
         alert(`✅ ${list.length}件を復元しました`);
         render();
       }
-    } catch(e) { alert('貼り付けたデータを読み込めませんでした'); }
+    } catch(e) { alert('貼り付けたデータを読み込めませんでした: ' + e.message); }
   });
   on('btn-add', () => {
     S.formData = { date: S.selectedDate, startTime: nextRoundTime(), cat: 'work' };
