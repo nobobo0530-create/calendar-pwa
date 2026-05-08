@@ -392,6 +392,7 @@ function render() {
     <div class="bottom-bar">
       <button class="bar-btn" id="btn-add">＋ 予定を追加</button>
       <button class="bar-btn" id="btn-export" style="background:#f3f4f6;color:#374151;font-size:13px;margin-top:8px;">📤 データを新しいアプリに移す</button>
+      <button class="bar-btn" id="btn-import" style="background:#f3f4f6;color:#374151;font-size:13px;margin-top:4px;">📥 データを貼り付けて復元</button>
     </div>
     ${S.formData ? renderForm() : ''}
     ${renderAlarmModal()}
@@ -435,13 +436,24 @@ function bind() {
   // 通常画面
   on('btn-export', () => {
     const data = localStorage.getItem(EVENTS_KEY) || '[]';
-    const b64 = btoa(unescape(encodeURIComponent(data)));
-    const url = `https://calendar-pwa-omega.vercel.app/?import=${b64}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => alert('✅ コピーしました！\nSafariで新しいアプリを開いてアドレスバーに貼り付けてください。'));
-    } else {
-      prompt('このURLをコピーして新しいアプリのSafariで開いてください', url);
-    }
+    prompt('このテキストを全選択してコピー → 新しいアプリの「データを貼り付けて復元」ボタンに貼り付けてください', data);
+  });
+  on('btn-import', () => {
+    const text = prompt('エクスポートしたテキストを貼り付けてください');
+    if (!text) return;
+    try {
+      const list = JSON.parse(text);
+      if (!Array.isArray(list)) { alert('データの形式が正しくありません'); return; }
+      if (list.length === 0) { alert('データが空です'); return; }
+      if (confirm(`${list.length}件の予定を追加しますか？`)) {
+        list.forEach(d => S.events.push(mkEvent(d)));
+        saveEvents();
+        scheduleAlarms();
+        if (list[0]?.date) S.selectedDate = list[0].date;
+        alert(`✅ ${list.length}件を復元しました`);
+        render();
+      }
+    } catch(e) { alert('貼り付けたデータを読み込めませんでした'); }
   });
   on('btn-add', () => {
     S.formData = { date: S.selectedDate, startTime: nextRoundTime(), cat: 'work' };
